@@ -12,15 +12,15 @@ export default function SearchForm() {
   }
 
   return (
-    <div className="flex gap-2 mb-4">
-      <input 
-        type="text" 
-        value={id} 
+    <form className="flex gap-2 mb-4" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={id}
         onChange={(e) => setId(e.target.value)}
-        className="text-black p-2 rounded" // щоб бачити текст на темному фоні
-        placeholder="Введи Steam ID"
+        className="text-white p-2 rounded border border-gray-400 focus:outline-none focus:border-blue-600"
+        placeholder="Enter Steam ID"
       />
-      <button type="submit" className="bg-blue-600 p-2 rounded">Шукати</button>
-    </div>
+      <button type="submit" className="bg-blue-600 p-2 rounded">Search</button>
+    </form>
   );
 }
