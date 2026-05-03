@@ -1,5 +1,8 @@
 import React from 'react';
 import SearchForm from "./components/SearchFort";
+import { motion } from "framer-motion"
+import MatchCard from "./components/MatchCard";
+
 
 
 interface PlayerData {
@@ -23,18 +26,21 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
       <p>Enter your Steam ID</p>
     </main>
   )
-
-  const resMatches = await fetch(`https://api.opendota.com/api/players/${id}/recentMatches`, { cache: 'no-store' });
-  const res = await fetch('https://api.opendota.com/api/players/' + id, { cache: 'no-store' });
-  const resWL = await fetch(`https://api.opendota.com/api/players/${id}/wl`, { cache: 'no-store' });
+  const [res, resMatches, resHeroes, resWL] = await Promise.all([
+    fetch('https://api.opendota.com/api/players/' + id, { cache: 'no-store' }),
+    fetch(`https://api.opendota.com/api/players/${id}/recentMatches`, { cache: 'no-store' }),
+    fetch(`https://api.opendota.com/api/heroes`, { cache: 'no-store' }),
+    fetch(`https://api.opendota.com/api/players/${id}/wl`, { cache: 'no-store' })
+  ])
+  const PlayerData: PlayerData = await res.json() as PlayerData;
   const matchesData: any = await resMatches.json();
-  const accountId = id;
+  const heroesData: any = await resHeroes.json();
   const wlDATA: WLDOTA = await resWL.json() as WLDOTA;
   const winrate = ((wlDATA.win / (wlDATA.win + wlDATA.lose)) * 100).toFixed(2);
-  const PlayerData: PlayerData = await res.json() as PlayerData;
+  const accountId = id;
   if (!PlayerData.profile) {
     return (
-      <main>
+      <main className="flex min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
         <SearchForm />
         <p className="text-red-500">Private account!</p>
       </main>
@@ -44,7 +50,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
 
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
+    <main className="flex bg-gradient-to-b from-[#1c242d] to-[#0f1214] min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
       <SearchForm />
       {id && (
         <div className="w-full max-w-5xl mt-10 animate-in fade-in duration-500">
@@ -70,13 +76,20 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
             </section>)}
           {matchesData.map((matches: any, index: number) => {
             const isRadiant = matches.player_slot < 128;
-            const isWin = isRadiant === matches.radiant_win
+            const isWin = isRadiant === matches.radiant_win;
+            const hero = heroesData.find((hero: any) => hero.id === matches.hero_id);
+
             return (
-              <div key={index} className={isWin ? "text-green-500" : "text-red-500"}>
-                <p>{isWin ? "WIN" : "LOSS"}</p>
-              </div>
+              <MatchCard
+                key={index}
+                matches={matches}
+                hero={hero}
+                isWin={isWin}
+                index={index}
+              />
             );
           })}
+
         </div>
       )}
     </main>
