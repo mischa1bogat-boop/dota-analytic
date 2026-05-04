@@ -26,6 +26,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
       <p>Enter your Steam ID</p>
     </main>
   )
+
   const [res, resMatches, resHeroes, resWL] = await Promise.all([
     fetch('https://api.opendota.com/api/players/' + id, { cache: 'no-store' }),
     fetch(`https://api.opendota.com/api/players/${id}/recentMatches`, { cache: 'no-store' }),
@@ -36,6 +37,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
   const matchesData: any = await resMatches.json();
   const heroesData: any = await resHeroes.json();
   const wlDATA: WLDOTA = await resWL.json() as WLDOTA;
+  const rankIcon = Math.floor(PlayerData.rank_tier / 10);
+  const rankMedal = (PlayerData.rank_tier % 10);
   const winrate = ((wlDATA.win / (wlDATA.win + wlDATA.lose)) * 100).toFixed(2);
   const accountId = id;
   if (!PlayerData.profile) {
@@ -46,11 +49,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
       </main>
     );
   }
-
+  if (wlDATA.win === 0 && wlDATA.lose === 0) return (
+    <main className="flex min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
+      <SearchForm />
+      <p className="text-red-500">Private account!</p>
+    </main>
+  )
 
 
   return (
-    <main className="flex bg-gradient-to-b from-[#1c242d] to-[#0f1214] min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
+    <main className="flex bg-gradient-to-b from-gray-800 to-black-900 min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
       <SearchForm />
       {id && (
         <div className="w-full max-w-5xl mt-10 animate-in fade-in duration-500">
@@ -70,7 +78,20 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
                 </div>
                 <div className="flex gap-4 text-sm uppercase tracking-widest font-bold">
                   <span className="text-gray-400">Rank Tier:</span>
-                  <span className="text-blue-400">{PlayerData.rank_tier || "Unranked"}</span>
+                  <div className="relative w-24 h-24">
+                    <img
+                      src={`https://www.opendota.com/assets/images/dota2/rank_icons/rank_icon_${rankIcon}.png`}
+                      className="w-full h-full absolute top-0 left-0"
+                      alt="rank"
+                    />
+                    {rankMedal > 0 && rankIcon < 8 && (
+                      <img
+                        src={`https://www.opendota.com/assets/images/dota2/rank_icons/rank_star_${rankMedal}.png`}
+                        className="w-full h-full absolute top-0 left-0 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+                        alt="stars"
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </section>)}
