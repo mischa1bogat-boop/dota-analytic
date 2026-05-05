@@ -19,7 +19,7 @@ interface WLDOTA {
 }
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
-  const { id } = await searchParams;
+  const { id, tab } = await searchParams;
   if (!id) return (
     <main className="flex min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
       <SearchForm />
@@ -27,16 +27,18 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
     </main>
   )
 
-  const [res, resMatches, resHeroes, resWL] = await Promise.all([
+  const [res, resMatches, resHeroes, resWL, resPlayerHeroes] = await Promise.all([
     fetch('https://api.opendota.com/api/players/' + id, { cache: 'no-store' }),
     fetch(`https://api.opendota.com/api/players/${id}/recentMatches`, { cache: 'no-store' }),
     fetch(`https://api.opendota.com/api/heroes`, { cache: 'no-store' }),
-    fetch(`https://api.opendota.com/api/players/${id}/wl`, { cache: 'no-store' })
+    fetch(`https://api.opendota.com/api/players/${id}/wl`, { cache: 'no-store' }),
+    fetch(`https://api.opendota.com/api/players/${id}/heroes`, { cache: 'no-store' })
   ])
   const PlayerData: PlayerData = await res.json() as PlayerData;
   const matchesData: any = await resMatches.json();
   const heroesData: any = await resHeroes.json();
   const wlDATA: WLDOTA = await resWL.json() as WLDOTA;
+  const playerHeroesData: any = await resPlayerHeroes.json();
   const rankIcon = Math.floor(PlayerData.rank_tier / 10);
   const rankMedal = (PlayerData.rank_tier % 10);
   const winrate = ((wlDATA.win / (wlDATA.win + wlDATA.lose)) * 100).toFixed(2);
@@ -95,6 +97,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
                 </div>
               </div>
             </section>)}
+          <div className="bg-blue-500 p-1 rounded-b-lg">
+            <nav className="flex gap-8 w-full max-w-5xl mt-4 border-b border-gray-800 pb-2">
+              <a href={`/?id=${id}&tab=matches`} className={`uppercase font-bold text-sm ${!tab || tab === 'matches' ? 'text-gray-700 border-b-2 border-blue-500' : 'text-gray-400'}`}>Matches</a>
+              <a href={`/?id=${id}&tab=heroes`} className={`uppercase font-bold text-sm ${tab === 'heroes' ? 'text-gray-700 border-b-2 border-blue-500' : 'text-gray-400'}`}>Heroes</a>
+            </nav>
+          </div>
           {matchesData.map((matches: any, index: number) => {
             const isRadiant = matches.player_slot < 128;
             const isWin = isRadiant === matches.radiant_win;
@@ -113,6 +121,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
 
         </div>
       )}
+
     </main>
   )
 }
