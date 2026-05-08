@@ -27,21 +27,24 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
     </main>
   )
 
-  const [res, resMatches, resHeroes, resWL, resPlayerHeroes] = await Promise.all([
+  const [res, resMatches, resHeroes, resWL, resPlayerHeroes, resHeroesStats] = await Promise.all([
     fetch('https://api.opendota.com/api/players/' + id, { cache: 'no-store' }),
     fetch(`https://api.opendota.com/api/players/${id}/recentMatches`, { cache: 'no-store' }),
     fetch(`https://api.opendota.com/api/heroes`, { cache: 'no-store' }),
     fetch(`https://api.opendota.com/api/players/${id}/wl`, { cache: 'no-store' }),
-    fetch(`https://api.opendota.com/api/players/${id}/heroes`, { cache: 'no-store' })
+    fetch(`https://api.opendota.com/api/players/${id}/heroes`, { cache: 'no-store' }),
+    fetch(`https://api.opendota.com/api/players/${id}/heroStats`, { cache: 'no-store' })
   ])
   const PlayerData: PlayerData = await res.json() as PlayerData;
   const matchesData: any = await resMatches.json();
   const heroesData: any = await resHeroes.json();
   const wlDATA: WLDOTA = await resWL.json() as WLDOTA;
+  const heroesStats: any = await resHeroesStats.json();
   const playerHeroesData: any = await resPlayerHeroes.json();
   const rankIcon = Math.floor(PlayerData.rank_tier / 10);
   const rankMedal = (PlayerData.rank_tier % 10);
   const winrate = ((wlDATA.win / (wlDATA.win + wlDATA.lose)) * 100).toFixed(2);
+  const topHeroes = playerHeroesData.sort((a: any, b: any) => b.games - a.games).slice(0, 10);
   const accountId = id;
   if (!PlayerData.profile) {
     return (
@@ -103,21 +106,45 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
               <a href={`/?id=${id}&tab=heroes`} className={`uppercase font-bold text-sm ${tab === 'heroes' ? 'text-gray-700 border-b-2 border-blue-500' : 'text-gray-400'}`}>Heroes</a>
             </nav>
           </div>
-          {matchesData.map((matches: any, index: number) => {
-            const isRadiant = matches.player_slot < 128;
-            const isWin = isRadiant === matches.radiant_win;
-            const hero = heroesData.find((hero: any) => hero.id === matches.hero_id);
+          {(!tab || tab === 'matches') &&
+            matchesData.map((matches: any, index: number) => {
+              const isRadiant = matches.player_slot < 128;
+              const isWin = isRadiant === matches.radiant_win;
+              const hero = heroesData.find((hero: any) => hero.id === matches.hero_id);
 
-            return (
-              <MatchCard
-                key={index}
-                matches={matches}
-                hero={hero}
-                isWin={isWin}
-                index={index}
-              />
-            );
-          })}
+              return (
+                <MatchCard
+                  key={index}
+                  matches={matches}
+                  hero={hero}
+                  isWin={isWin}
+                  index={index}
+                />
+              );
+
+            })}
+          {tab === 'heroes' && (
+            <div className="flex flex-col w-full bg-[#1c242d] rounded-lg overflow-hidden">
+              <div className="flex p-4 bg-[#11161d] text-gray-400 text-sm font-bold uppercase">
+                <span className="flex-1">Hero</span>
+                <span className="w-24 text-center">Matches</span>
+                <span className="w-24 text-center">Winrate</span>
+              </div>
+              {topHeroes.map((hero: any, index: number) => {
+                const heroInfo = heroesData.find((h: any) => h.id === hero.hero_id);
+                const wr = ((hero.win / hero.games) * 100).toFixed(2);
+                return (
+                  <div key={index} className="flex items-center p-4 border-b border-gray-800 hover:bg-[#252e38] transition-colors">
+                    <span className="flex-1 text-white font-bold">{heroInfo?.localized_name}</span>
+                    <span className="w-24 text-center text-white">{hero.games}</span>
+                    <span className="w-24 text-center text-green-500">{wr}%</span>
+                  </div>
+                );
+              })}
+            </div>
+
+
+          )}
 
         </div>
       )}

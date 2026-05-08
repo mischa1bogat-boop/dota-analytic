@@ -17,6 +17,7 @@ export default function SearchForm() {
         type="text"
         value={id}
         onChange={(e) => setId(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(e); }}
         className="bg-[#0f1214] border-b-2 border-blue-500 focus:border-blue-400 outline-none p-4 text-xl"
         placeholder="Enter Steam ID"
       />
