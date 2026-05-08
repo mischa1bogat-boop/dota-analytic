@@ -2,6 +2,7 @@ import React from 'react';
 import SearchForm from "./components/SearchFort";
 import { motion } from "framer-motion"
 import MatchCard from "./components/MatchCard";
+import HeroCard from "./components/Hero";
 
 
 
@@ -43,8 +44,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
   const playerHeroesData: any = await resPlayerHeroes.json();
   const rankIcon = Math.floor(PlayerData.rank_tier / 10);
   const rankMedal = (PlayerData.rank_tier % 10);
-  const winrate = ((wlDATA.win / (wlDATA.win + wlDATA.lose)) * 100).toFixed(2);
-  const topHeroes = playerHeroesData.sort((a: any, b: any) => b.games - a.games).slice(0, 10);
+
   const accountId = id;
   if (!PlayerData.profile) {
     return (
@@ -60,7 +60,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
       <p className="text-red-500">Private account!</p>
     </main>
   )
-
+  const winrate = ((wlDATA.win / (wlDATA.win + wlDATA.lose)) * 100).toFixed(2);
+  const topHeroes = playerHeroesData.sort((a: any, b: any) => b.games - a.games).slice(0, 10);
 
   return (
     <main className="flex bg-gradient-to-b from-gray-800 to-black-900 min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
@@ -68,7 +69,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
       {id && (
         <div className="w-full max-w-5xl mt-10 animate-in fade-in duration-500">
           {PlayerData.profile && (
-            <section className="flex items-center gap-6 bg-[#1c242d] p-6 rounded-t-lg border-b-4 border-blue-500">
+            <section className="flex items-center gap-6 bg-[#1c242d] p-6 rounded-t-lg border-b-4 border-[#1c242d]">
               <img
                 src={PlayerData.profile.avatarfull}
                 className="w-32 h-32 rounded-lg border-2 border-[#333f48]"
@@ -100,10 +101,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
                 </div>
               </div>
             </section>)}
-          <div className="bg-blue-500 p-1 rounded-b-lg">
+          <div className="bg-gradient-to-b from-gray-800 to-blue-800 p-1 rounded-b-lg">
             <nav className="flex gap-8 w-full max-w-5xl mt-4 border-b border-gray-800 pb-2">
-              <a href={`/?id=${id}&tab=matches`} className={`uppercase font-bold text-sm ${!tab || tab === 'matches' ? 'text-gray-700 border-b-2 border-blue-500' : 'text-gray-400'}`}>Matches</a>
-              <a href={`/?id=${id}&tab=heroes`} className={`uppercase font-bold text-sm ${tab === 'heroes' ? 'text-gray-700 border-b-2 border-blue-500' : 'text-gray-400'}`}>Heroes</a>
+              <a href={`/?id=${id}&tab=matches`} className={`uppercase font-bold text-sm ${!tab || tab === 'matches' ? 'text-gray-900 border-b-2 border-blue-500' : 'text-blue-400'}`}>Matches</a>
+              <a href={`/?id=${id}&tab=heroes`} className={`uppercase font-bold text-sm ${tab === 'heroes' ? 'text-gray-900 border-b-2 border-blue-500' : 'text-blue-400'}`}>Heroes</a>
             </nav>
           </div>
           {(!tab || tab === 'matches') &&
@@ -126,7 +127,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
           {tab === 'heroes' && (
             <div className="flex flex-col w-full bg-[#1c242d] rounded-lg overflow-hidden">
               <div className="flex p-4 bg-[#11161d] text-gray-400 text-sm font-bold uppercase">
-                <span className="flex-1">Hero</span>
+                <span className="flex-1">Hero (top 10)</span>
                 <span className="w-24 text-center">Matches</span>
                 <span className="w-24 text-center">Winrate</span>
               </div>
@@ -134,11 +135,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
                 const heroInfo = heroesData.find((h: any) => h.id === hero.hero_id);
                 const wr = ((hero.win / hero.games) * 100).toFixed(2);
                 return (
-                  <div key={index} className="flex items-center p-4 border-b border-gray-800 hover:bg-[#252e38] transition-colors">
-                    <span className="flex-1 text-white font-bold">{heroInfo?.localized_name}</span>
-                    <span className="w-24 text-center text-white">{hero.games}</span>
-                    <span className="w-24 text-center text-green-500">{wr}%</span>
-                  </div>
+                  <HeroCard
+                    key={index}
+                    hero={heroInfo}
+                    matches={hero}
+                    index={index}
+                  />
                 );
               })}
             </div>
