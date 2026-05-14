@@ -28,21 +28,19 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
     </main>
   )
 
-  const [res, resMatches, resHeroes, resWL, resPlayerHeroes, resHeroesStats] = await Promise.all([
+  const [res, resMatches, resHeroes, resWL, resPlayerHeroes,] = await Promise.all([
     fetch('https://api.opendota.com/api/players/' + id, { cache: 'no-store' }),
     fetch(`https://api.opendota.com/api/players/${id}/recentMatches`, { cache: 'no-store' }),
     fetch(`https://api.opendota.com/api/heroes`, { cache: 'no-store' }),
     fetch(`https://api.opendota.com/api/players/${id}/wl`, { cache: 'no-store' }),
     fetch(`https://api.opendota.com/api/players/${id}/heroes`, { cache: 'no-store' }),
-    fetch(`https://api.opendota.com/api/players/${id}/heroStats`, { cache: 'no-store' })
+    // fetch(`https://api.opendota.com/api/players/${id}/heroStats`, { cache: 'no-store' })
   ])
   const PlayerData: PlayerData = await res.json() as PlayerData;
-  console.log("PLAYER DATA:", PlayerData);
-
   const matchesData: any = await resMatches.json();
   const heroesData: any = await resHeroes.json();
   const wlDATA: WLDOTA = await resWL.json() as WLDOTA;
-  const heroesStats: any = await resHeroesStats.json();
+  // const heroesStats: any = await resHeroesStats.json();
   const playerHeroesData: any = await resPlayerHeroes.json();
   const rankIcon = Math.floor(PlayerData.rank_tier / 10);
   const rankMedal = (PlayerData.rank_tier % 10);
