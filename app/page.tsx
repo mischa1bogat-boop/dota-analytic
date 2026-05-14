@@ -37,6 +37,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
     fetch(`https://api.opendota.com/api/players/${id}/heroStats`, { cache: 'no-store' })
   ])
   const PlayerData: PlayerData = await res.json() as PlayerData;
+  console.log("PLAYER DATA:", PlayerData);
+
   const matchesData: any = await resMatches.json();
   const heroesData: any = await resHeroes.json();
   const wlDATA: WLDOTA = await resWL.json() as WLDOTA;
@@ -46,6 +48,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
   const rankMedal = (PlayerData.rank_tier % 10);
 
   const accountId = id;
+
+  if (PlayerData.error === 'daily api limit exceeded') {
+    return (
+      <main className="flex min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
+        <SearchForm />
+        <p className="text-yellow-500 font-bold">API Limit Exceeded! OpenDota is tired. Please wait a bit.</p>
+      </main>
+    );
+  }
+
   if (!PlayerData.profile) {
     return (
       <main className="flex min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
@@ -60,8 +72,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
       <p className="text-red-500">Private account!</p>
     </main>
   )
-  const winrate = ((wlDATA.win / (wlDATA.win + wlDATA.lose)) * 100).toFixed(2);
-  const topHeroes = playerHeroesData.sort((a: any, b: any) => b.games - a.games).slice(0, 10);
+  const totalGames = wlDATA.win + wlDATA.lose;
+  const winrate = totalGames > 0
+    ? ((wlDATA.win / totalGames) * 100).toFixed(2)
+    : "0";
+  const heroesArray = Array.isArray(playerHeroesData) ? playerHeroesData : [];
+  const topHeroes = heroesArray.sort((a: any, b: any) => b.games - a.games).slice(0, 10);
 
   return (
     <main className="flex bg-gradient-to-b from-gray-800 to-black-900 min-h-screen flex-col items-center bg-[#0f1214] text-[#d6d8db] p-8">
