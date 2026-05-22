@@ -1,4 +1,5 @@
-
+import MatchGraph from "@/app/components/MatchGraph";
+import Link from 'next/link';
 
 
 const getLaneName = (laneRole: number, isRoaming: boolean | null) => {
@@ -28,15 +29,20 @@ export default async function MatchPage({ params }: { params: Promise<{ id: stri
     const radiantPlayers = matches.players.filter((p: any) => p.player_slot < 128);
     const direPlayers = matches.players.filter((p: any) => p.player_slot >= 128);
 
-
+    
 
     return (
+        
         <main className="flex bg-gradient-to-b from-gray-800 to-gray-900 min-h-screen flex-col items-center p-8 text-white">
-
+            <Link href="/" className="self-start bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded mb-4 transition-all">
+                ← Назад
+            </Link>
             <h1 className="text-2xl font-bold">Match Details: {id}</h1>
             <div className={` ${isRadiantWin && "text-green-500"} ${isDireWin && "text-red-500"} text-5xl font-bold justify-center items-center text-center mb-4 uppercase tracking-tighter`}>{isRadiantWin && "Radiant Win"} {isDireWin && "Dire Win"}</div>
             <h2 className={` ${radiantScore && "text-6xl flex justify-center items-center text-center font-bold text-green-500"} ${direScore && "text-6xl flex justify-center items-center text-center font-bold text-red-500"}`}>{radiantScore} - {direScore}</h2>
-            <div className="w-full h-full flex text-green" >Radiant</div>
+            <div className="w-full max-w-6xl bg-green-900/30 text-green-400 font-bold p-3 mb-2 mt-4 rounded border border-green-800">
+                RADIANT
+            </div>
             {radiantPlayers.map((player: any) => {
                 const hero = heroesData.find((h: any) => h.id === player.hero_id);
                 const heroName = hero?.name?.replace("npc_dota_hero_", "");
@@ -112,7 +118,9 @@ export default async function MatchPage({ params }: { params: Promise<{ id: stri
                 );
             })}
 
-            <div className="w-full h-full flex text-red " >Dire</div>
+            <div className="w-full max-w-6xl bg-red-900/30 text-red-400 font-bold p-3 mb-2 mt-4 rounded border border-red-800">
+                DIRE
+            </div>
             {direPlayers.map((player: any) => {
                 const hero = heroesData.find((h: any) => h.id === player.hero_id);
                 const heroName = hero?.name?.replace("npc_dota_hero_", "");
@@ -186,6 +194,7 @@ export default async function MatchPage({ params }: { params: Promise<{ id: stri
                     </div>
                 );
             })}
+            <MatchGraph gold={matches.radiant_gold_adv} />
 
 
 
