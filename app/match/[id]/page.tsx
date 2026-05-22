@@ -13,8 +13,9 @@ const getLaneName = (laneRole: number, isRoaming: boolean | null) => {
     }
 };
 
-export default async function MatchPage({ params }: { params: Promise<{ id: string }> }) {
-
+export default async function MatchPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ player?: string }> }) {
+    
+    const { player } = await searchParams; 
     const { id } = await params;
     const res = await fetch(`https://api.opendota.com/api/matches/${id}`, { cache: 'no-store' });
     const matches = await res.json();
@@ -34,7 +35,7 @@ export default async function MatchPage({ params }: { params: Promise<{ id: stri
     return (
         
         <main className="flex bg-gradient-to-b from-gray-800 to-gray-900 min-h-screen flex-col items-center p-8 text-white">
-            <Link href="/" className="self-start bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded mb-4 transition-all">
+            <Link href={player ? `/?id=${player}` : "/"}  className="self-start bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded mb-4 transition-all">
                 ← Назад
             </Link>
             <h1 className="text-2xl font-bold">Match Details: {id}</h1>

@@ -39,7 +39,10 @@ export default function MatchGraph({ gold }: GoldAdvChartProps) {
                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
 
                     <XAxis dataKey="time" stroke="#9ca3af" />
-                    <YAxis stroke="#9ca3af" />
+                    <YAxis 
+                        stroke="#9ca3af" 
+                        tickFormatter={(value) => value === 0 ? "0" : `${(value / 1000).toFixed(0)}k`} 
+                    />
                     <Tooltip content={<CustomTooltip />} />
 
                     <ReferenceLine y={0} stroke="red" strokeWidth={2} />

@@ -134,6 +134,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ i
                   hero={hero}
                   isWin={isWin}
                   index={index}
+                  playerId={id}
                 />
               );
 

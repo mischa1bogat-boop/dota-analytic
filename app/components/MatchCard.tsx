@@ -2,13 +2,17 @@
 import { motion } from "framer-motion"
 import { useRouter } from 'next/navigation'
 
-export default function MatchCard({ matches, hero, isWin, index }: any) {
+export default function MatchCard({ matches, hero, isWin, index, playerId }: any) {
   const heroName = hero?.name?.replace("npc_dota_hero_", "");
   const router = useRouter();
 
   const handleMatchDetalis = () => {
     router.push(`/match/${matches.match_id}`)
   }
+  const handlePlayerDetalis = () => {
+  router.push(`/match/${matches.match_id}?player=${playerId}`)
+}
+
 
   return (
     <motion.div
